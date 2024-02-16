@@ -100,6 +100,22 @@ class Wrapper:
                 offers.append(MarketOrder.from_response(order_uuid, order_data))
         return offers
 
+    def get_offer(self, offer_type: Literal["buy", "sell"], item_id: str):
+        if offer_type not in ["buy", "sell"]:
+            raise InvalidInput("offer_type")
+        offers = []
+        params = {
+            "order_type": offer_type,
+            "item_type": item_id
+        }
+        response = self.request("GET", "/market", headers=self.headers, params=params)
+        json_data = response.json()
+        if response != 200:
+            parse_error(json_data["detail"])
+        for order_uuid, order_data in json_data["orders"].items():
+            offers.append(MarketOrder.from_response(order_uuid, order_data))
+        return offers
+
     def request(self, method: Literal["GET", "POST"], route: str, headers: dict, params: dict = None):
         url = BASE + route
 
