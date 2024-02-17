@@ -40,6 +40,7 @@ extras_require = {
 
 packages = [
     'willofsteel',
+    'types'
 ]
 
 readme = ''
