@@ -32,7 +32,15 @@ class Wrapper:
     def _verify_key(self) -> None:
         raise NotImplementedError("Key Verification not available.")
 
-    def get_player(self) -> dict:
+    def get_player(self) -> Player:
+        """
+        Retrieve player information.
+
+        Returns
+        -------
+        Optional[:class:`~willofsteel.types.Player`]
+        
+        """
         response = self.request("GET", "/player", self.headers)    
         # There can not be a 403 error raised as we already verified the key.
         if response.status == 200:
@@ -40,6 +48,14 @@ class Wrapper:
             return Player.from_response(data)
 
     def get_alliance(self) -> dict:
+        """
+        Retrieve alliance information.
+
+        Returns
+        -------
+        Optional[:class:`~willofsteel.types.Alliance`]
+        
+        """
         response = self.request("GET", "/alliance", headers=self.headers)
         status = response.status
         if status == 400:
@@ -48,6 +64,19 @@ class Wrapper:
         return Alliance.from_response(data)
 
     def update_alliance_name(self, new_name: str) -> bool:
+        """
+        Update the name of the alliance.
+
+        Parameters
+        ----------
+        new_name: :class:`str`
+            The new name of the alliance.
+
+        Returns
+        -------
+        :class:`bool`
+        
+        """
         if len(new_name) > 32: # this is not an official limit. just a wrapper limit for now
             return KeyError # return an error which says it cant be more than 32 chars 
         headers = self.headers
@@ -64,6 +93,19 @@ class Wrapper:
             print("This error was not automatically detected, please report this to the maintainers (or fix it yourself)!")
 
     def update_alliance_user_limit(self, new_limit: str) -> bool:
+        """
+        Update the user limit of the alliance.
+
+        Parameters
+        ----------
+        new_limit: :class:`str`
+            The new user limit of the alliance.
+
+        Returns
+        -------
+        :class:`bool`
+        
+        """
         if new_limit > 50:
             return KeyError # return an error which says it cant be more than 50 
         headers = self.headers
@@ -80,6 +122,19 @@ class Wrapper:
             print("This error was not automatically detected, please report this to the maintainers (or fix it yourself)!")
             
     def get_all_offers(self, offer_type: Literal["buy", "sell"]):
+        """
+        Retrieve all offers.
+
+        Parameters
+        ----------
+        offer_type: :class:`Literal["buy", "sell"]`
+            The type of offer to retrieve.
+
+        Returns
+        -------
+        List[:class:`~willofsteel.types.MarketOrder`]
+        
+        """
         if offer_type not in ["buy", "sell"]:
             raise KeyError("Invalid offer type")
         offers = []
@@ -101,6 +156,21 @@ class Wrapper:
         return offers
 
     def get_offer(self, offer_type: Literal["buy", "sell"], item_id: str):
+        """
+        Retrieve an offer.
+
+        Parameters
+        ----------
+        offer_type: :class:`Literal["buy", "sell"]`
+            The type of offer to retrieve.
+        item_id: :class:`str`
+            The ID of the item to retrieve offers for.
+
+        Returns
+        -------
+        List[:class:`~willofsteel.types.MarketOrder`]
+        
+        """
         if offer_type not in ["buy", "sell"]:
             raise InvalidInput("offer_type")
         offers = []
