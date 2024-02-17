@@ -42,7 +42,7 @@ client = willofsteel.Wrapper(API_KEY)
 **Example**
 
 A quick example of using this library is to look up your profile every hour and send the results to a text file, this can be accomplished with the following:
-```
+```py
 import willofsteel
 import time
 
