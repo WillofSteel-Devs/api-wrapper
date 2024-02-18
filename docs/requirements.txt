@@ -8,3 +8,4 @@ sphinxcontrib-jsmath
 sphinxcontrib-qthelp
 sphinxcontrib-serializinghtml
 sphinxcontrib-trio
+furo
