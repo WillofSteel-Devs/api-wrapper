@@ -1,7 +1,7 @@
 .. currentmodule:: willofsteel
 
 Models
-======
+~~~~~~
 
 .. danger::
 
@@ -12,7 +12,7 @@ Models
     nor should you modify the :class:`Player` instance yourself.
 
 Player
-~~~~~~
+======
 
 .. autoclass:: Player()
     :members:
@@ -20,19 +20,19 @@ Player
 
 
 Alliance
-~~~~~~~~
+========
 .. autoclass:: Alliance()
     :members:
     :inherited-members:
 
 Market
-~~~~~~
+======
 .. autoclass:: MarketOrder()
     :members:
     :inherited-members:
 
 Troops
-~~~~~~
+======
 .. autoclass:: UnitProperties()
     :members:
     :inherited-members:

@@ -12,7 +12,7 @@ import os
 project = 'Will of Steel'
 copyright = '2024, ItsNeil'
 author = 'ItsNeil'
-release = 'v0.0.1'
+release = '0.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -36,9 +36,12 @@ templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 
+ogp_site_url = "https://wrapper.willofsteel.me/"
+ogp_image = "https://wrapper.willofsteel.me/static/logo.png"
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'furo'
 html_static_path = ['_static']
+html_title = f"{project} v{release} Documentation"
