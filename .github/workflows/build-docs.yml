@@ -12,23 +12,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install Sphinx dependencies
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install python3-sphinx -y
-
-      - name: Install requirements
-        run: |
-          cd docs
-          pip install -r requirements.txt
-
       - name: Build Sphinx docs
         run: |
           cd docs
           make html
-
-      - name: Install rsync
-        run: sudo apt-get install rsync -y
 
       - name: Copy built docs
         run: |
