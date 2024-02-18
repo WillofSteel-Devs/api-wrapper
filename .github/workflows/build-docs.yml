@@ -1,4 +1,4 @@
-name: Deploy Sphinx Docs
+name: Deploy Sphinx Documentation
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-deploy:
-    name: Build & Deploy Docs
+    name: Build & Deploy Documentation
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
