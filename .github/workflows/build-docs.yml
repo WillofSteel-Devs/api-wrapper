@@ -16,4 +16,4 @@ jobs:
         run: sphinx-build -b html docs _build/html
 
       - name: Copy built docs
-        run: rsync -avz docs/_build/html/ /var/www/api-wrapper-docs/
+        run: rsync -avz _build/html/ /var/www/api-wrapper-docs/
