@@ -1,0 +1,34 @@
+name: Deploy Sphinx Docs
+
+on:
+  push:
+    branches: [ main ]  # Replace with your branch name(s)
+  pull_request:
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Sphinx dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install python3-sphinx
+
+      - name: Install requirements
+        run: |
+          cd docs
+          pip install -r requirements.txt
+
+      - name: Build Sphinx docs
+        run: |
+          cd docs
+          make html
+
+      - name: Install rsync
+        run: sudo apt-get install rsync
+
+      - name: Copy built docs
+        run: |
+          rsync -avz docs/_build/html/ /var/www/api-docs/
