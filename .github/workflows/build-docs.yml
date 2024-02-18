@@ -2,7 +2,7 @@ name: Deploy Sphinx Docs
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
 
 jobs:
@@ -17,3 +17,9 @@ jobs:
 
       - name: Copy built docs
         run: rsync -avz _build/html/ /var/www/api-wrapper-docs/
+
+      - name: Discord notification
+        uses: cl8dep/action-discord@v0
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          message: 'Sphinx docs built and deployed.'
