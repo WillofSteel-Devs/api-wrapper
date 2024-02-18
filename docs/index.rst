@@ -52,7 +52,7 @@ followning code:
 
    API_KEY = 'Place your api key here'
 
-   client = willofsteel.Wrapper(API_KEY)
+   client = willofsteel.Client(API_KEY)
 
 **Example**
 
@@ -66,7 +66,7 @@ the following:
    import time
 
    API_KEY = 'Place your api key here'
-   client = willofsteel.Wrapper(API_KEY)
+   client = willofsteel.Client(API_KEY)
 
 
    def scheduled_query():
