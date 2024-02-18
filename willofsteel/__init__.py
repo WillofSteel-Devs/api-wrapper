@@ -15,4 +15,5 @@ __license__ = "MIT"
 __copyright__ = "Copyright 2024-present ItsNeil"
 __version__ = "0.0.1a"
 
-from .wrapper import *
+from .client import *
+from .types import *
