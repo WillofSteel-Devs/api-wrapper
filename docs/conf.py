@@ -36,8 +36,8 @@ templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 
-ogp_site_url = "https://wrapper.willofsteel.me/"
-ogp_image = "https://wrapper.willofsteel.me/static/logo.png"
+ogp_site_url = "https://willofsteel.me/"
+ogp_image = "https://willofsteel.me/img/logo.png"
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
@@ -45,3 +45,5 @@ ogp_image = "https://wrapper.willofsteel.me/static/logo.png"
 html_theme = 'furo'
 html_static_path = ['_static']
 html_title = f"{project} v{release} Documentation"
+html_logo = "./images/logo.png"
+html_favicon = "https://willofsteel.me/img/logo.ico"
