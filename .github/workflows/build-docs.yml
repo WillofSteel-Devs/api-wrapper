@@ -18,8 +18,9 @@ jobs:
       - name: Copy built docs
         run: rsync -avz _build/html/ /var/www/api-wrapper-docs/
 
-      - name: Discord notification
-        uses: cl8dep/action-discord@v0
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          message: 'Sphinx docs built and deployed.'
+      - name: Discord Notification
+          uses: appleboy/discord-action@master
+          with:
+            webhook_id: ${{ secrets.WEBHOOK_ID }}
+            webhook_token: ${{ secrets.WEBHOOK_TOKEN }}
+            args: 'Sphinx docs have been built and deployed!'
