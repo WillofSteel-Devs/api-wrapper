@@ -17,3 +17,11 @@ class NotSpecified(Exception):
 class ServerError(Exception):
     def __init__(self):
         super().__init__("There seems to be an issue with the API.")
+
+class ErrorNotDetected(Exception):
+    def __init__(self, error: str):
+        super().__init__(f"Error not detected: {error}")
+
+class LimitExceeded(Exception):
+    def __init__(self, limit: int, type: str):
+        super().__init__(f"You have exceed the limit of {limit} {type}.")

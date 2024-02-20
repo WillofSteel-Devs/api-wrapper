@@ -11,22 +11,23 @@ A wrapper for the Will of Steel API
 from __future__ import annotations
 from typing import Literal
 import requests
-import asyncio
-import atexit
+import logging
 
-from .types import Player, Alliance, MarketOrder
-from .constants import BASE, ALL_ITEMS
-from .utils import parse_error
+from .types import Player, Alliance, MarketOrder, LoggingObject
+from .constants import BASE, ALL_ITEMS, MISSING
+from .utils import parse_error, setup_logging
 from .exceptions import *
 
 class Client:
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, logger: LoggingObject = MISSING):
         self.api_key = api_key
         self.headers = {
             "API-Key": self.api_key,
             "User-Agent": "Will of Steel API Wrapper",
             "Content-Type": "application/json"
         }
+
+        setup_logging(logger if logger else LoggingObject())
         # self._verify_key() # not implemented in API as of now
 
     def _verify_key(self) -> None:
@@ -45,6 +46,7 @@ class Client:
         # There can not be a 403 error raised as we already verified the key.
         if response.status == 200:
             data = response.json()
+            logging.debug(f"Got player data successfully: {data}. Returning with converting to Model.")
             return Player.from_response(data)
 
     def get_alliance(self) -> dict:
@@ -61,6 +63,7 @@ class Client:
         if status == 400:
             raise NotInAlliance
         data = response.json()
+        logging.debug(f"Got alliance data successfully: {data}. Returning with converting to Model.")
         return Alliance.from_response(data)
 
     def update_alliance_name(self, new_name: str) -> bool:
@@ -78,13 +81,14 @@ class Client:
         
         """
         if len(new_name) > 32: # this is not an official limit. just a wrapper limit for now
-            return KeyError # return an error which says it cant be more than 32 chars 
+            raise LimitExceeded(32, "name")
         headers = self.headers
         headers["update_type"] = "name"
         headers["new_name"] = new_name
         response = self.request("POST", "/alliance", headers=headers)
         status = response.status
         if status == 200:
+            logging.debug("Alliance name update was successful. Resp code: 200")
             return True
         else:
             json = response.json()
@@ -114,6 +118,7 @@ class Client:
         response = self.request("POST", "/alliance", headers=headers)        
         status = response.status
         if status == 200:
+            logging.debug("Alliance user limit update was successful. Resp code: 200")
             return True
         else:
             json = response.json()
@@ -142,12 +147,12 @@ class Client:
             "order_type": offer_type,
         }
         for item_id in ALL_ITEMS:
-            print(item_id)
             params["item_type"] = item_id
             response = self.request("GET", "/market", headers=self.headers, params=params)
             json_data = response.json()
             if response != 200:
                 parse_error(json_data["detail"])
+            logging.debug(f"Got offer data for {item_id}: {str(json_data)}")
             number_of_orders = len(json_data["orders"])
             if number_of_orders == 0:
                 continue
@@ -180,7 +185,8 @@ class Client:
         }
         response = self.request("GET", "/market", headers=self.headers, params=params)
         json_data = response.json()
-        if response != 200:
+        logging.debug(f"Got offer data for {item_id}: {str(json_data)}")
+        if response.status_code != 200:
             parse_error(json_data["detail"])
         for order_uuid, order_data in json_data["orders"].items():
             offers.append(MarketOrder.from_response(order_uuid, order_data))
