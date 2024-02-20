@@ -148,3 +148,4 @@ def setup_logging(
     handler.setFormatter(formatter)
     logger.setLevel(level)
     logger.addHandler(handler)
+    logging.getLogger("urllib3").setLevel(logging.WARNING) # disable DEBUG logs from requests lib
