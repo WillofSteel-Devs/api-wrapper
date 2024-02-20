@@ -1,6 +1,8 @@
 from setuptools import setup
 import re
 
+VERSION = "0.1"
+
 requirements = [
     "aiohttp>=3.7.4,<4"
 ]
@@ -50,8 +52,8 @@ with open('README.rst') as f:
 setup(
     name='willofsteel',
     author='ItsNeil',
-    url='https://github.com/WillofStel-Devs/api-wrapper',
-    version="0.0.1",
+    url='https://wrapper.willofsteel.me',
+    version=VERSION,
     packages=packages,
     license='MIT',
     description='A Python wrapper for the Discord API',

@@ -26,7 +26,7 @@ class Client:
             "API-Key": self.api_key,
             "User-Agent": "Will of Steel API Wrapper",
             "Content-Type": "application/json"
-        }      
+        }
         # self._verify_key() # not implemented in API as of now
 
     def _verify_key(self) -> None:
