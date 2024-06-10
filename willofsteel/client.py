@@ -24,7 +24,8 @@ class Client:
         self.headers = {
             "API-Key": self.api_key,
             "User-Agent": "Will of Steel API Wrapper",
-            "Content-Type": "application/json"
+            "Accept": "application/json",
+            "X-API-Version": "0.3"
         }
 
         setup_logging(logger if logger else LoggingObject())
