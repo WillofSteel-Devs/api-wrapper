@@ -18,7 +18,6 @@ Player
     :members:
     :inherited-members:
 
-
 Alliance
 ========
 .. autoclass:: Alliance()
@@ -38,5 +37,19 @@ Troops
     :inherited-members:
 
 .. autoclass:: UnitType()
+    :members:
+    :inherited-members:
+
+Items
+=====
+
+.. autoclass:: ItemType()
+    :members:
+    :inherited-members:
+
+Outpost 
+=======
+
+.. autoclass:: Outpost()
     :members:
     :inherited-members:

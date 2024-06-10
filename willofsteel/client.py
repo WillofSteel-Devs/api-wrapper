@@ -43,10 +43,6 @@ class Client:
     def get_player(self) -> Player:
         """
         Retrieve player information.
-
-        Returns
-        -------
-        Optional[:class:`~willofsteel.types.Player`]
         
         """
         response = self.request("GET", "/player", self.headers)    
@@ -60,10 +56,6 @@ class Client:
         """
         Retrieve player inventory.
 
-        Returns
-        -------
-        :class:`dict`[:class:`~willofsteel.types.ItemType`, :class:`int`]
-        
         """
         response = self.request("GET", "/inventory", self.headers)
         if response.status == 200:
@@ -80,10 +72,6 @@ class Client:
         """
         Retrieve player army.
         
-        Returns
-        -------
-        :class:`dict`[:class:`~willofsteel.types.UnitType`, :class:`int`]
-        
         """
         response = self.request("GET", "/army", self.headers)
         if response.status == 200:
@@ -99,10 +87,6 @@ class Client:
     def get_outposts(self) -> list[Outpost]:
         """
         Retrieve all outposts.
-        
-        Returns
-        -------
-        :class:`dict`[:class:`str`, :class:`str`]
         
         """
         response = self.request("GET", "/outposts", self.headers)
@@ -193,7 +177,7 @@ class Client:
             print(json["detail"])
             print("This error was not automatically detected, please report this to the maintainers (or fix it yourself)!")
 
-    def get_all_offers(self, offer_type: Literal["buy", "sell"]):
+    def get_all_offers(self, offer_type: Literal["buy", "sell"]) -> list[MarketOrder]:
         """
         Retrieve all offers.
 
@@ -201,10 +185,6 @@ class Client:
         ----------
         offer_type: :class:`Literal["buy", "sell"]`
             The type of offer to retrieve.
-
-        Returns
-        -------
-        List[:class:`~willofsteel.types.MarketOrder`]
         
         """
         if offer_type not in ["buy", "sell"]:
@@ -227,7 +207,7 @@ class Client:
                 offers.append(MarketOrder.from_response(order_uuid, order_data))
         return offers
 
-    def get_offer(self, offer_type: Literal["buy", "sell"], item_id: str):
+    def get_offer(self, offer_type: Literal["buy", "sell"], item_id: str) -> list[MarketOrder]:
         """
         Retrieve an offer.
 
@@ -237,10 +217,6 @@ class Client:
             The type of offer to retrieve.
         item_id: :class:`str`
             The ID of the item to retrieve offers for.
-
-        Returns
-        -------
-        List[:class:`~willofsteel.types.MarketOrder`]
         
         """
         if offer_type not in ["buy", "sell"]:
