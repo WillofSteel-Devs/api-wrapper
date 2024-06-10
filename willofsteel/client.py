@@ -13,7 +13,7 @@ from typing import Literal
 import requests
 import logging
 
-from .types import Player, Alliance, MarketOrder, UnitType, ItemType, LoggingObject, convert_str_to_IT
+from .types import Player, Alliance, MarketOrder, UnitType, ItemType, LoggingObject, convert_str_to_IT, convert_str_to_UT
 from .constants import BASE, ALL_ITEMS, MISSING
 from .utils import parse_error, setup_logging
 from .exceptions import *
@@ -69,7 +69,27 @@ class Client:
         if response.status == 200:
             data = response.json()
             logging.debug(f"Got player inventory data successfully: {data}. Returning with converting to Model.")
-            return {convert_str_to_IT(item_id): amount for item_id, amount in data.items()}
+            return {convert_str_to_IT(item_id): amount for item_id, amount in data["items"].items()}
+        else:
+            json = response.json()
+            parse_error(json["detail"])
+            print(json["detail"])
+            print("This error was not automatically detected, please report this to the maintainers (or fix it yourself)!")
+
+    def get_player_army(self) -> dict[UnitType, int]:
+        """
+        Retrieve player army.
+        
+        Returns
+        -------
+        :class:`dict`[:class:`~willofsteel.types.UnitType`, :class:`int`]
+        
+        """
+        response = self.request("GET", "/army", self.headers)
+        if response.status == 200:
+            data = response.json()
+            logging.debug(f"Got player army data successfully: {data}. Returning with converting to Model.")
+            return {convert_str_to_UT(unit_type): amount for unit_type, amount in data["units"].items()}
         else:
             json = response.json()
             parse_error(json["detail"])
