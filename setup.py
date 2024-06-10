@@ -1,7 +1,7 @@
 from setuptools import setup
 import re
 
-VERSION = "0.1"
+VERSION = "0.2"
 
 requirements = [
     "aiohttp>=3.7.4,<4"
