@@ -12,6 +12,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Install Sphinx dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install python3-sphinx
+      - name: Install requirements
+        run: |
+          cd docs
+          pip install -r requirements.txt
+
       - name: Build Sphinx docs
         run: sphinx-build -b html docs _build/html
 
