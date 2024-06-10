@@ -8,7 +8,6 @@ requirements = [
 ]
 
 extras_require = {
-    'voice': ['PyNaCl>=1.3.0,<1.6'],
     'docs': [
         'sphinx==4.4.0',
         'sphinxcontrib_trio==1.1.2',
@@ -22,21 +21,6 @@ extras_require = {
         'sphinxcontrib-serializinghtml==1.1.5',
         'typing-extensions>=4.3,<5',
         'sphinx-inline-tabs==2023.4.21',
-    ],
-    'speed': [
-        'orjson>=3.5.4',
-        'aiodns>=1.1',
-        'Brotli',
-        'cchardet==2.1.7; python_version < "3.10"',
-    ],
-    'test': [
-        'coverage[toml]',
-        'pytest',
-        'pytest-asyncio',
-        'pytest-cov',
-        'pytest-mock',
-        'typing-extensions>=4.3,<5',
-        'tzdata; sys_platform == "win32"',
     ],
 }
 
