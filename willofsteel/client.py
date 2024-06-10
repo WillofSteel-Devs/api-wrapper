@@ -13,7 +13,7 @@ from typing import Literal
 import requests
 import logging
 
-from .types import Player, Alliance, MarketOrder, UnitType, ItemType, LoggingObject, convert_str_to_IT, convert_str_to_UT
+from .types import Player, Alliance, MarketOrder, UnitType, ItemType, LoggingObject, convert_str_to_IT, convert_str_to_UT, Outpost
 from .constants import BASE, ALL_ITEMS, MISSING
 from .utils import parse_error, setup_logging
 from .exceptions import *
@@ -96,6 +96,26 @@ class Client:
             print(json["detail"])
             print("This error was not automatically detected, please report this to the maintainers (or fix it yourself)!")
 
+    def get_outposts(self) -> list[Outpost]:
+        """
+        Retrieve all outposts.
+        
+        Returns
+        -------
+        :class:`dict`[:class:`str`, :class:`str`]
+        
+        """
+        response = self.request("GET", "/outposts", self.headers)
+        if response.status == 200:
+            data = response.json()
+            logging.debug(f"Got outposts data successfully: {data}. Returning with converting to Model.")
+            return [Outpost.from_data(outpost) for outpost in data["outposts"]]
+        else:
+            json = response.json()
+            parse_error(json["detail"])
+            print(json["detail"])
+            print("This error was not automatically detected, please report this to the maintainers (or fix it yourself)!")
+
     def get_alliance(self) -> dict:
         """
         Retrieve alliance information.
@@ -172,7 +192,7 @@ class Client:
             parse_error(json["detail"])
             print(json["detail"])
             print("This error was not automatically detected, please report this to the maintainers (or fix it yourself)!")
-            
+
     def get_all_offers(self, offer_type: Literal["buy", "sell"]):
         """
         Retrieve all offers.
