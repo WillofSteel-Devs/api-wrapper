@@ -40,7 +40,7 @@ setup(
     version=VERSION,
     packages=packages,
     license='MIT',
-    description='A Python wrapper for the Discord API',
+    description='A Python wrapper for the Will of Steel API',
     long_description=readme,
     long_description_content_type='text/x-rst',
     include_package_data=True,
