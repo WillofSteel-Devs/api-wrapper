@@ -103,10 +103,10 @@ def setup_logging(
     uses different defaults and a colour formatter if the stream can
     display colour.
 
-    This is used by the :class:`~discord.Client` to set up logging
+    This is used by the :class:`~willofsteel.Client` to set up logging
     if ``log_handler`` is not ``None``.
 
-    .. versionadded:: 2.0
+    .. versionadded:: 0.2
 
     Parameters
     -----------

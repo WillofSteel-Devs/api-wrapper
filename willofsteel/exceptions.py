@@ -25,3 +25,7 @@ class ErrorNotDetected(Exception):
 class LimitExceeded(Exception):
     def __init__(self, limit: int, type: str):
         super().__init__(f"You have exceed the limit of {limit} {type}.")
+
+class InvalidKey(Exception):
+    def __init__(self) -> None:
+        super().__init__("Invalid API Key. Please check the key and try again.")

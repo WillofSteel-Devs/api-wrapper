@@ -13,7 +13,7 @@ from typing import Literal
 import requests
 import logging
 
-from .types import Player, Alliance, MarketOrder, LoggingObject
+from .types import Player, Alliance, MarketOrder, UnitType, LoggingObject
 from .constants import BASE, ALL_ITEMS, MISSING
 from .utils import parse_error, setup_logging
 from .exceptions import *
@@ -28,10 +28,16 @@ class Client:
         }
 
         setup_logging(logger if logger else LoggingObject())
-        # self._verify_key() # not implemented in API as of now
+        self._verify_key()
 
     def _verify_key(self) -> None:
-        raise NotImplementedError("Key Verification not available.")
+        response = self.request("GET", "/verify", self.headers)
+        if response.status == 403:
+            raise InvalidKey
+        elif response.status == 200:
+            logging.info("Key verification successful.")
+        else:
+            raise ServerError
 
     def get_player(self) -> Player:
         """
@@ -191,6 +197,38 @@ class Client:
         for order_uuid, order_data in json_data["orders"].items():
             offers.append(MarketOrder.from_response(order_uuid, order_data))
         return offers
+
+    def recruit_troop(self, unit_type: UnitType, amount: int, currency: Literal["gold", "silver"] = "gold") -> bool:
+        """
+        Recruit troops.
+
+        Parameters
+        ----------
+        unit_type: :class:`~willofsteel.types.UnitType`
+            The type of unit to recruit.
+        amount: :class:`int`
+            The amount of units to recruit.
+        currency: :class:`str`
+            The currency to use for recruitment. Defaults to gold.
+            
+        Returns
+        -------
+        :class:`bool`
+        
+        """
+        headers = self.headers
+        headers["unit_type"] = unit_type.name
+        headers["amount"] = amount
+        response = self.request("POST", "/recruit", headers=headers)
+        status = response.status
+        if status == 200:
+            logging.debug("Troop recruitment was successful. Resp code: 200")
+            return True
+        else:
+            json = response.json()
+            parse_error(json["detail"])
+            print(json["detail"])
+            print("This error was not automatically detected, please report this to the maintainers (or fix it yourself)!")
 
     def request(self, method: Literal["GET", "POST"], route: str, headers: dict, params: dict = None):
         url = BASE + route
