@@ -109,7 +109,7 @@ class AsyncClient:
         Retrieve all outposts.
 
         """
-        data, status = await self.request("GET", "/outposts", self.headers)
+        data, status = await self.request("GET", "/outpost/list", self.headers)
         if status == 200:
             logging.debug(
                 f"Got outposts data successfully: {data}. Returning with converting to Model.")
@@ -316,5 +316,4 @@ class AsyncClient:
                 if response.status == 500:
                     raise ServerError
                 data = await response.json()
-                print(data)
                 return data, response.status
