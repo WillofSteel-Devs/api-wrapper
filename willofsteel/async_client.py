@@ -25,9 +25,20 @@ class AsyncClient:
     """
     Asynchronous client for the Will of Steel API.
 
+    Parameters
+    ----------
+    api_key: :class:`str`
+        The API key to use.
+    logger: :class:`~willofsteel.types.LoggingObject`
+        The logger to use. Defaults to MISSING.
+    use_existing_loop: :class:`bool`
+        Whether to use an existing event loop. Defaults to False.
+    validate_key: :class:`bool`
+        Whether to validate the key. Defaults to True.
+
     """
 
-    def __init__(self, api_key: str, logger: LoggingObject = MISSING):
+    def __init__(self, api_key: str, logger: LoggingObject = MISSING, use_existing_loop: bool = False):
         self.api_key = api_key
         self.headers = {
             "API-Key": self.api_key,
@@ -37,13 +48,18 @@ class AsyncClient:
         }
 
         setup_logging(logger if logger else LoggingObject())
-        asyncio.run(self._verify_key())
+
+        if use_existing_loop:
+            loop = asyncio.get_event_loop()
+            loop.create_task(self._verify_key())
+        else:
+            asyncio.run(self._verify_key())
 
     async def _verify_key(self) -> None:
-        response = self.request("GET", "/verify", self.headers)
-        if response.status == 403:
+        data, status = await self.request("GET", "/verify", self.headers)
+        if status == 403:
             raise InvalidKey
-        elif response.status == 200:
+        elif status == 200:
             logging.info("Key verification successful.")
         else:
             raise ServerError
@@ -53,10 +69,9 @@ class AsyncClient:
         Retrieve player information.
 
         """
-        response = self.request("GET", "/player", self.headers)
+        data, status = await self.request("GET", "/player", self.headers)
         # There can not be a 403 error raised as we already verified the key.
-        if response.status == 200:
-            data = response.json()
+        if status == 200:
             logging.debug(
                 f"Got player data successfully: {data}. Returning with converting to Model.")
             return Player.from_response(data)
@@ -66,16 +81,14 @@ class AsyncClient:
         Retrieve player inventory.
 
         """
-        response = self.request("GET", "/inventory", self.headers)
-        if response.status == 200:
-            data = response.json()
+        data, status = await self.request("GET", "/inventory", self.headers)
+        if status == 200:
             logging.debug(
                 f"Got player inventory data successfully: {data}. Returning with converting to Model.")
             return {convert_str_to_IT(item_id): amount for item_id, amount in data["items"].items()}
         else:
-            json = response.json()
-            parse_error(json["detail"])
-            print(json["detail"])
+            parse_error(data["detail"])
+            print(data["detail"])
             print("This error was not automatically detected, please report this to the maintainers (or fix it yourself)!")
 
     async def get_player_army(self) -> dict[UnitType, int]:
@@ -83,16 +96,14 @@ class AsyncClient:
         Retrieve player army.
 
         """
-        response = self.request("GET", "/army", self.headers)
-        if response.status == 200:
-            data = response.json()
+        data, status = await self.request("GET", "/army", self.headers)
+        if status == 200:
             logging.debug(
                 f"Got player army data successfully: {data}. Returning with converting to Model.")
             return {convert_str_to_UT(unit_type): amount for unit_type, amount in data["units"].items()}
         else:
-            json = response.json()
-            parse_error(json["detail"])
-            print(json["detail"])
+            parse_error(data["detail"])
+            print(data["detail"])
             print("This error was not automatically detected, please report this to the maintainers (or fix it yourself)!")
 
     async def get_outposts(self) -> list[Outpost]:
@@ -100,16 +111,14 @@ class AsyncClient:
         Retrieve all outposts.
 
         """
-        response = self.request("GET", "/outposts", self.headers)
-        if response.status == 200:
-            data = response.json()
+        data, status = await self.request("GET", "/outposts", self.headers)
+        if status == 200:
             logging.debug(
                 f"Got outposts data successfully: {data}. Returning with converting to Model.")
             return [Outpost.from_data(outpost) for outpost in data["outposts"]]
         else:
-            json = response.json()
-            parse_error(json["detail"])
-            print(json["detail"])
+            parse_error(data["detail"])
+            print(data["detail"])
             print("This error was not automatically detected, please report this to the maintainers (or fix it yourself)!")
 
     async def get_alliance(self) -> dict:
@@ -121,11 +130,9 @@ class AsyncClient:
         Optional[:class:`~willofsteel.types.Alliance`]
 
         """
-        response = self.request("GET", "/alliance", headers=self.headers)
-        status = response.status
+        data, status = await self.request("GET", "/alliance", headers=self.headers)
         if status == 400:
             raise NotInAlliance
-        data = response.json()
         logging.debug(
             f"Got alliance data successfully: {data}. Returning with converting to Model.")
         return Alliance.from_response(data)
@@ -149,16 +156,14 @@ class AsyncClient:
         headers = self.headers
         headers["update_type"] = "name"
         headers["new_name"] = new_name
-        response = self.request("POST", "/alliance", headers=headers)
-        status = response.status
+        data, status = await self.request("POST", "/alliance", headers=headers)
         if status == 200:
             logging.debug(
                 "Alliance name update was successful. Resp code: 200")
             return True
         else:
-            json = response.json()
-            parse_error(json["detail"])
-            print(json["detail"])
+            parse_error(data["detail"])
+            print(data["detail"])
             print("This error was not automatically detected, please report this to the maintainers (or fix it yourself)!")
 
     async def update_alliance_user_limit(self, new_limit: str) -> bool:
@@ -180,16 +185,14 @@ class AsyncClient:
         headers = self.headers
         headers["update_type"] = "limit"
         headers["new_limit"] = new_limit
-        response = self.request("POST", "/alliance", headers=headers)
-        status = response.status
+        data, status = await self.request("POST", "/alliance", headers=headers)
         if status == 200:
             logging.debug(
                 "Alliance user limit update was successful. Resp code: 200")
             return True
         else:
-            json = response.json()
-            parse_error(json["detail"])
-            print(json["detail"])
+            parse_error(data["detail"])
+            print(data["detail"])
             print("This error was not automatically detected, please report this to the maintainers (or fix it yourself)!")
 
     async def get_all_offers(self, offer_type: Literal["buy", "sell"]) -> list[MarketOrder]:
@@ -210,16 +213,15 @@ class AsyncClient:
         }
         for item_id in ALL_ITEMS:
             params["item_type"] = item_id
-            response = self.request(
+            data, status = await self.request(
                 "GET", "/market", headers=self.headers, params=params)
-            json_data = response.json()
-            if response != 200:
-                parse_error(json_data["detail"])
-            logging.debug(f"Got offer data for {item_id}: {str(json_data)}")
-            number_of_orders = len(json_data["orders"])
+            if status != 200:
+                parse_error(data["detail"])
+            logging.debug(f"Got offer data for {item_id}: {str(data)}")
+            number_of_orders = len(data["orders"])
             if number_of_orders == 0:
                 continue
-            for order_uuid, order_data in json_data["orders"].items():
+            for order_uuid, order_data in data["orders"].items():
                 offers.append(MarketOrder.from_response(
                     order_uuid, order_data))
         return offers
@@ -243,13 +245,12 @@ class AsyncClient:
             "order_type": offer_type,
             "item_type": item_id
         }
-        response = self.request(
+        data, status = await self.request(
             "GET", "/market", headers=self.headers, params=params)
-        json_data = response.json()
-        logging.debug(f"Got offer data for {item_id}: {str(json_data)}")
-        if response.status_code != 200:
-            parse_error(json_data["detail"])
-        for order_uuid, order_data in json_data["orders"].items():
+        logging.debug(f"Got offer data for {item_id}: {str(data)}")
+        if status != 200:
+            parse_error(data["detail"])
+        for order_uuid, order_data in data["orders"].items():
             offers.append(MarketOrder.from_response(order_uuid, order_data))
         return offers
 
@@ -277,15 +278,13 @@ class AsyncClient:
             "amount": amount,
             "currency": currency
         }
-        response = self.request("POST", "/recruit", self.headers, query_params)
-        status = response.status
+        data, status = await self.request("POST", "/recruit", self.headers, query_params)
         if status == 200:
             logging.debug("Troop recruitment was successful. Resp code: 200")
             return True
         else:
-            json = response.json()
-            parse_error(json["detail"])
-            print(json["detail"])
+            parse_error(data["detail"])
+            print(data["detail"])
             print("This error was not automatically detected, please report this to the maintainers (or fix it yourself)!")
 
     async def request(self, method: Literal["GET", "POST"], route: str, headers: dict, params: dict = None):
@@ -317,4 +316,6 @@ class AsyncClient:
             async with session.request(method, url, headers=headers, params=params) as response:
                 if response.status == 500:
                     raise ServerError
-                return response
+                data = await response.json()
+                print(data)
+                return data, response.status
