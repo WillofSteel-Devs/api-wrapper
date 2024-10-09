@@ -16,4 +16,5 @@ __copyright__ = "Copyright 2024-present ItsNeil"
 __version__ = "0.0.1a"
 
 from .client import *
+from .async_client import *
 from .types import *

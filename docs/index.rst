@@ -24,6 +24,7 @@ If this is your first time using the library, this is the place to get started!
 - Install the Library: :doc:`installing`
 - Follow our QuickStart Guide: :doc:`quickstart`
 - Check out the Client: :doc:`client`
+- Make an AsyncClient: :doc:`async_client`
 
 Manuals
 -------
@@ -34,4 +35,5 @@ Manuals
    installing.rst
    quickstart.rst
    client.rst
+   async_client.rst
    types.rst
