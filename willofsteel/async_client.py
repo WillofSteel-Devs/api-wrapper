@@ -33,8 +33,6 @@ class AsyncClient:
         The logger to use. Defaults to MISSING.
     use_existing_loop: :class:`bool`
         Whether to use an existing event loop. Defaults to False.
-    validate_key: :class:`bool`
-        Whether to validate the key. Defaults to True.
 
     """
 
@@ -304,7 +302,8 @@ class AsyncClient:
 
         Returns
         -------
-        :class:`aiohttp.ClientResponse`
+        :class:`dict` The json response from the api,
+        :class:`int` The status code of the response
 
         """
         url = BASE + route
