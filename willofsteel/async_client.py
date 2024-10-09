@@ -2,7 +2,7 @@
 WillofSteel API Wrapper
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-A wrapper for the Will of Steel API
+Asynchronous wrapper for the Will of Steel API.
 
 :copyright: (C) 2024-present ItsNeil
 :license: MIT, see LICENSE for more details
@@ -36,7 +36,7 @@ class AsyncClient:
 
     """
 
-    def __init__(self, api_key: str, logger: LoggingObject = MISSING, use_existing_loop: bool = False):
+    def __init__(self, api_key: str, logger: LoggingObject = MISSING):
         self.api_key = api_key
         self.headers = {
             "API-Key": self.api_key,
@@ -47,9 +47,9 @@ class AsyncClient:
 
         setup_logging(logger if logger else LoggingObject())
 
-        if use_existing_loop:
-            loop = asyncio.get_event_loop()
-            loop.create_task(self._verify_key())
+        event_loop = asyncio.get_event_loop()
+        if event_loop.is_running():
+            event_loop.create_task(self._verify_key())
         else:
             asyncio.run(self._verify_key())
 
