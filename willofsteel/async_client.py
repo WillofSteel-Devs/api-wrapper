@@ -45,6 +45,8 @@ class AsyncClient:
             "Accept": "application/json",
             "X-API-Version": "0.3"
         }
+        self._is_verified = False
+        self._verified_id = -1
         self._session = None
         setup_logging(logger if logger else LoggingObject())
 
@@ -69,6 +71,8 @@ class AsyncClient:
             raise InvalidKey
         elif status == 200:
             logging.info("Key verification successful.")
+            self._is_verified = True
+            self._verified_id = data["user_id"]
         else:
             raise ServerError
 
@@ -228,6 +232,10 @@ class AsyncClient:
         offer_type: :class:`Literal["buy", "sell"]`
             The type of offer to retrieve.
 
+        Returns
+        -------
+        :class:`list`[`~willofsteel.types.MarketOrder`]
+
         """
         if offer_type not in ["buy", "sell"]:
             raise KeyError("Invalid offer type")
@@ -260,6 +268,10 @@ class AsyncClient:
             The type of offer to retrieve.
         item_id: :class:`str`
             The ID of the item to retrieve offers for.
+
+        Returns
+        -------
+        :class:`list`[`~willofsteel.types.MarketOrder`]
 
         """
         if offer_type not in ["buy", "sell"]:
@@ -342,6 +354,28 @@ class AsyncClient:
                 raise ServerError
             data = await response.json()
             return data, response.status
+
+    def is_verified(self) -> bool:
+        """
+        Check if the API key is verified.
+
+        Returns
+        -------
+        :class:`bool`
+
+        """
+        return self._is_verified
+
+    def get_user_id(self) -> int:
+        """
+        Get the user ID.
+
+        Returns
+        -------
+        :class:`int`
+
+        """
+        return self._verified_id
 
     async def __aenter__(self):
         return self
