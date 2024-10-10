@@ -44,6 +44,7 @@ class AsyncClient:
             "Accept": "application/json",
             "X-API-Version": "0.3"
         }
+        self._session = aiohttp.ClientSession()
 
         setup_logging(logger if logger else LoggingObject())
 
@@ -311,9 +312,8 @@ class AsyncClient:
         if method not in ["GET", "POST"]:
             return KeyError("Invalid Method")
 
-        async with aiohttp.ClientSession() as session:
-            async with session.request(method, url, headers=headers, params=params) as response:
-                if response.status == 500:
-                    raise ServerError
-                data = await response.json()
-                return data, response.status
+        async with self._session.request(method, url, headers=headers, params=params) as response:
+            if response.status == 500:
+                raise ServerError
+            data = await response.json()
+            return data, response.status
