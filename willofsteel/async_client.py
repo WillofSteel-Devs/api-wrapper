@@ -76,6 +76,10 @@ class AsyncClient:
         """
         Retrieve player information.
 
+        Returns
+        -------
+        :class:`~willofsteel.types.Player`
+
         """
         data, status = await self.request("GET", "/player", self.headers)
         # There can not be a 403 error raised as we already verified the key.
@@ -87,6 +91,10 @@ class AsyncClient:
     async def get_player_inventory(self) -> dict[ItemType, int]:
         """
         Retrieve player inventory.
+
+        Returns
+        -------
+        :class:`dict`[`~willofsteel.types.ItemType`, :class:`int`]
 
         """
         data, status = await self.request("GET", "/inventory", self.headers)
@@ -103,6 +111,10 @@ class AsyncClient:
         """
         Retrieve player army.
 
+        Returns
+        -------
+        :class:`dict`[`~willofsteel.types.UnitType`, :class:`int`]
+
         """
         data, status = await self.request("GET", "/army", self.headers)
         if status == 200:
@@ -118,6 +130,10 @@ class AsyncClient:
         """
         Retrieve all outposts.
 
+        Returns
+        -------
+        :class:`list`[`~willofsteel.types.Outpost`]
+
         """
         data, status = await self.request("GET", "/outpost/list", self.headers)
         if status == 200:
@@ -129,13 +145,13 @@ class AsyncClient:
             print(data["detail"])
             print("This error was not automatically detected, please report this to the maintainers (or fix it yourself)!")
 
-    async def get_alliance(self) -> dict:
+    async def get_alliance(self) -> Alliance:
         """
         Retrieve alliance information.
 
         Returns
         -------
-        Optional[:class:`~willofsteel.types.Alliance`]
+        :class:`~willofsteel.types.Alliance`
 
         """
         data, status = await self.request("GET", "/alliance", headers=self.headers)
@@ -161,7 +177,7 @@ class AsyncClient:
         """
         if len(new_name) > 32:  # this is not an official limit. just a wrapper limit for now
             raise LimitExceeded(32, "name")
-        headers = self.headers
+        headers = self.headers.copy()
         headers["update_type"] = "name"
         headers["new_name"] = new_name
         data, status = await self.request("POST", "/alliance", headers=headers)
