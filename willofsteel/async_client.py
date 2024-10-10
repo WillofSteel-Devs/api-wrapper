@@ -14,6 +14,7 @@ import logging
 
 import aiohttp
 import asyncio
+import atexit
 
 from .types import Player, Alliance, MarketOrder, UnitType, ItemType, LoggingObject, convert_str_to_IT, convert_str_to_UT, Outpost
 from .constants import BASE, ALL_ITEMS, MISSING
@@ -59,18 +60,12 @@ class AsyncClient:
 
         """
         self._session = aiohttp.ClientSession()
+        atexit.register(asyncio.run, self._session.close())
         await self._verify_key()
-
-    async def close(self):
-        """
-        Close the AsyncClient when it no longer needs to be used.
-
-        """
-        await self._session.close()
 
     async def _verify_key(self) -> None:
         data, status = await self.request("GET", "/verify", self.headers)
-        if status == 403:
+        if (status == 403) or (not data.get("success")):
             raise InvalidKey
         elif status == 200:
             logging.info("Key verification successful.")
@@ -331,3 +326,9 @@ class AsyncClient:
                 raise ServerError
             data = await response.json()
             return data, response.status
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc_value, exc_traceback):
+        await self._session.close()
