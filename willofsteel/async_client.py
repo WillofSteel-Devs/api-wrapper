@@ -46,7 +46,7 @@ class AsyncClient:
             "X-API-Version": "0.3"
         }
         self._is_verified = False
-        self._verified_id = -1
+        self._user_id = -1
         self._session = None
         setup_logging(logger if logger else LoggingObject())
 
@@ -55,6 +55,37 @@ class AsyncClient:
             event_loop.create_task(self._async_setup())
         else:
             asyncio.run(self._async_setup())
+
+    @property
+    def is_verified(self):
+        """
+        Whether the API key is verified. This property is not intended to be set.
+        """
+        return self._is_verified
+
+    @is_verified.setter
+    def is_verified(self, value):
+        if self._is_verified:
+            raise AttributeError("Cannot set is_verified property.")
+        elif not isinstance(value, bool):
+            raise TypeError("is_verified property must be a boolean.")
+        self._is_verified = value
+
+    @property
+    def user_id(self):
+        """
+        The id of the user associated with the api key. This property is not intended to be set.
+        """
+        if not self._is_verified:
+            raise AttributeError(
+                "AsyncClient.user_id is not available until its api key is verified.")
+        return self._user_id
+
+    @user_id.setter
+    def user_id(self, value):
+        if self._is_verified:
+            raise AttributeError("Cannot set user_id property.")
+        self._user_id = value
 
     async def _async_setup(self):
         """
@@ -71,8 +102,8 @@ class AsyncClient:
             raise InvalidKey
         elif status == 200:
             logging.info("Key verification successful.")
+            self._user_id = data["user_id"]
             self._is_verified = True
-            self._verified_id = data["user_id"]
         else:
             raise ServerError
 
@@ -354,28 +385,6 @@ class AsyncClient:
                 raise ServerError
             data = await response.json()
             return data, response.status
-
-    def is_verified(self) -> bool:
-        """
-        Check if the API key is verified.
-
-        Returns
-        -------
-        :class:`bool`
-
-        """
-        return self._is_verified
-
-    def get_user_id(self) -> int:
-        """
-        Get the user ID.
-
-        Returns
-        -------
-        :class:`int`
-
-        """
-        return self._verified_id
 
     async def __aenter__(self):
         return self
