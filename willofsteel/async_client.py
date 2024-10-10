@@ -210,7 +210,7 @@ class AsyncClient:
         """
         if new_limit > 50:
             return KeyError  # return an error which says it cant be more than 50
-        headers = self.headers
+        headers = self.headers.copy()
         headers["update_type"] = "limit"
         headers["new_limit"] = new_limit
         data, status = await self.request("POST", "/alliance", headers=headers)
