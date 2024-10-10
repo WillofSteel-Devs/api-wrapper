@@ -21,11 +21,7 @@ class TestAsyncClient(unittest.async_case.IsolatedAsyncioTestCase):
         self.client = AsyncClient(
             'valid_key', logger=LoggingObject(level=logging.CRITICAL))
 
-    def tearDown(self):
-        asyncio.run(self.client.close())
-        super().tearDown()
-
-    @ patch('willofsteel.async_client.AsyncClient.request', new_callable=AsyncMock)
+    @patch('willofsteel.async_client.AsyncClient.request', new_callable=AsyncMock)
     async def test_validate_key_valid_key_raises_no_exception(self, mock_get):
         mock_get.return_value = {'success': True,
                                  'user_id': 707274479751135243}, 200
@@ -35,13 +31,13 @@ class TestAsyncClient(unittest.async_case.IsolatedAsyncioTestCase):
         except InvalidKey:
             self.fail("InvalidKey exception raised unexpectedly")
 
-    @ patch('willofsteel.async_client.AsyncClient.request', new_callable=AsyncMock)
+    @patch('willofsteel.async_client.AsyncClient.request', new_callable=AsyncMock)
     async def test_validate_key_invalid_key_raises_InvalidKey_exception(self, mock_get):
         mock_get.return_value = {'detail': 'Not authenticated'}, 403
         with self.assertRaises(willofsteel.exceptions.InvalidKey):
             await self.client._verify_key()
 
-    @ patch('willofsteel.async_client.AsyncClient.request', new_callable=AsyncMock)
+    @patch('willofsteel.async_client.AsyncClient.request', new_callable=AsyncMock)
     async def test_get_player_returns_player_object(self, mock_get):
         mock_get.return_value = {
             "user_id": 0,
@@ -73,7 +69,7 @@ class TestAsyncClient(unittest.async_case.IsolatedAsyncioTestCase):
         response = await self.client.get_player()
         self.assertIsInstance(response, Player)
 
-    @ patch('willofsteel.async_client.AsyncClient.request', new_callable=AsyncMock)
+    @patch('willofsteel.async_client.AsyncClient.request', new_callable=AsyncMock)
     async def test_get_player_inventory_returns_dictionary_of_items(self, mock_get):
         mock_get.return_value = {
             "items": {"BAKERY_TOKEN": 10, "HEALING_TOKEN": 1}}, 200
