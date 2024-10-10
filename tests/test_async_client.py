@@ -1,4 +1,6 @@
 import unittest
+import logging
+import asyncio
 from unittest.mock import AsyncMock, patch
 import unittest.async_case
 import willofsteel
@@ -15,31 +17,61 @@ class TestAsyncClient(unittest.async_case.IsolatedAsyncioTestCase):
         self.addCleanup(patcher.stop)
         self.mock_request = patcher.start()
         self.mock_request.return_value = {}, 200
-        self.client = AsyncClient('valid_key')
+        self.client = AsyncClient(
+            'valid_key', logger=LoggingObject(level=logging.CRITICAL))
 
-    @patch('willofsteel.async_client.AsyncClient.request', new_callable=AsyncMock)
+    def tearDown(self):
+        asyncio.run(self.client.close())
+        super().tearDown()
+
+    @ patch('willofsteel.async_client.AsyncClient.request', new_callable=AsyncMock)
     async def test_validate_key_valid_key_raises_no_exception(self, mock_get):
-        mock_get.return_value = {}, 200
+        mock_get.return_value = {"success": True, "user_id": 0}, 200
         try:
             await self.client._verify_key()
             self.assertTrue(True)
         except InvalidKey:
             self.fail("InvalidKey exception raised unexpectedly")
 
-    @patch('willofsteel.async_client.AsyncClient.request', new_callable=AsyncMock)
+    @ patch('willofsteel.async_client.AsyncClient.request', new_callable=AsyncMock)
     async def test_validate_key_invalid_key_raises_InvalidKey_exception(self, mock_get):
         mock_get.return_value = {'detail': 'Not authenticated'}, 403
         with self.assertRaises(willofsteel.exceptions.InvalidKey):
             await self.client._verify_key()
 
-    @patch('willofsteel.async_client.AsyncClient.request', new_callable=AsyncMock)
+    @ patch('willofsteel.async_client.AsyncClient.request', new_callable=AsyncMock)
     async def test_get_player_returns_player_object(self, mock_get):
-        mock_get.return_value = {'user_id': 1,
-                                 'registered_at': '2023-01-01 01:01:01'}, 200
+        mock_get.return_value = {
+            "user_id": 0,
+            "registered_at": "2019-08-24T14:15:22Z",
+            "gold": 0,
+            "ruby": 0,
+            "silver": 0,
+            "units": {
+                "property1": 0,
+                "property2": 0
+            },
+            "npc_level": 0,
+            "last_npc_win": "2019-08-24T14:15:22Z",
+            "votes": 0,
+            "queue_slots": 0,
+            "observer": True,
+            "peace": 0,
+            "letter_bird": 0,
+            "food_stored": 0,
+            "prestige": 0,
+            "alliance": {
+                "owner": 0,
+                "created_at": "2019-08-24T14:15:22Z",
+                "name": "string",
+                "user_limit": 0,
+                "bank": 0
+            }
+        }, 200
         response = await self.client.get_player()
         self.assertIsInstance(response, Player)
 
-    @patch('willofsteel.async_client.AsyncClient.request', new_callable=AsyncMock)
+    @ patch('willofsteel.async_client.AsyncClient.request', new_callable=AsyncMock)
     async def test_get_player_inventory_returns_dictionary_of_items(self, mock_get):
         mock_get.return_value = {
             "items": {"BAKERY_TOKEN": 10, "HEALING_TOKEN": 1}}, 200
@@ -78,7 +110,8 @@ class TestAsyncClient(unittest.async_case.IsolatedAsyncioTestCase):
 
     @patch('willofsteel.async_client.AsyncClient.request', new_callable=AsyncMock)
     async def test_get_alliance_not_in_alliance_raises_NotInAlliance_Exception(self, mock_get):
-        mock_get.return_value = {'detail': 'Not in an alliance'}, 400
+        mock_get.return_value = {"success": False,
+                                 "detail": "alliance not found"}, 400
         try:
             await self.client.get_alliance()
             self.fail("NotInAlliance exception not raised")
@@ -87,7 +120,8 @@ class TestAsyncClient(unittest.async_case.IsolatedAsyncioTestCase):
 
     @patch('willofsteel.async_client.AsyncClient.request', new_callable=AsyncMock)
     async def test_update_alliance_name_valid_name_returns_True(self, mock_get):
-        mock_get.return_value = {}, 200
+        mock_get.return_value = {"updated": "name",
+                                 "old": "old name", "new": "new name"}, 200
         response = await self.client.update_alliance_name('New Name')
         self.assertTrue(response)
         response = await self.client.update_alliance_name('a'*32)
@@ -116,7 +150,8 @@ class TestAsyncClient(unittest.async_case.IsolatedAsyncioTestCase):
 
     @patch('willofsteel.async_client.AsyncClient.request', new_callable=AsyncMock)
     async def test_get_all_offers_invalid_offer_type_raises_KeyError_Exception(self, mock_get):
-        mock_get.return_value = {'detail': 'Invalid offer type'}, 200
+        mock_get.return_value = {'success': False,
+                                 'detail': 'invalid order type'}, 400
         with self.assertRaises(KeyError):
             await self.client.get_all_offers('invalid_offer_type')
 
@@ -137,6 +172,7 @@ class TestAsyncClient(unittest.async_case.IsolatedAsyncioTestCase):
 
     @patch('willofsteel.async_client.AsyncClient.request', new_callable=AsyncMock)
     async def test_get_offer_invalid_offer_type_raises_InvalidInput_Exception(self, mock_get):
-        mock_get.return_value = {'detail': 'Invalid offer type'}, 200
+        mock_get.return_value = {'success': False,
+                                 'detail': 'invalid order type'}, 400
         with self.assertRaises(InvalidInput):
             await self.client.get_offer('invalid_offer_type', 'LUCKYCHARM_TOKEN')
