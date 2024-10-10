@@ -44,15 +44,29 @@ class AsyncClient:
             "Accept": "application/json",
             "X-API-Version": "0.3"
         }
-        self._session = aiohttp.ClientSession()
-
+        self._session = None
         setup_logging(logger if logger else LoggingObject())
 
         event_loop = asyncio.get_event_loop()
         if event_loop.is_running():
-            event_loop.create_task(self._verify_key())
+            event_loop.create_task(self._async_setup())
         else:
-            asyncio.run(self._verify_key())
+            asyncio.run(self._async_setup())
+
+    async def _async_setup(self):
+        """
+        Setup the asynchronous parts of the client.
+
+        """
+        self._session = aiohttp.ClientSession()
+        await self._verify_key()
+
+    async def close(self):
+        """
+        Close the AsyncClient when it no longer needs to be used.
+
+        """
+        await self._session.close()
 
     async def _verify_key(self) -> None:
         data, status = await self.request("GET", "/verify", self.headers)
