@@ -16,7 +16,8 @@ class TestAsyncClient(unittest.async_case.IsolatedAsyncioTestCase):
             'willofsteel.async_client.AsyncClient.request', new_callable=AsyncMock)
         self.addCleanup(patcher.stop)
         self.mock_request = patcher.start()
-        self.mock_request.return_value = {}, 200
+        self.mock_request.return_value = {'success': True,
+                                          'user_id': 707274479751135243}, 200
         self.client = AsyncClient(
             'valid_key', logger=LoggingObject(level=logging.CRITICAL))
 
@@ -26,7 +27,8 @@ class TestAsyncClient(unittest.async_case.IsolatedAsyncioTestCase):
 
     @ patch('willofsteel.async_client.AsyncClient.request', new_callable=AsyncMock)
     async def test_validate_key_valid_key_raises_no_exception(self, mock_get):
-        mock_get.return_value = {"success": True, "user_id": 0}, 200
+        mock_get.return_value = {'success': True,
+                                 'user_id': 707274479751135243}, 200
         try:
             await self.client._verify_key()
             self.assertTrue(True)
